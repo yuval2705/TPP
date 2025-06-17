@@ -9,7 +9,11 @@ enum ReturnCodes
     ERROR
 };
 
-
+/// <summary>
+/// Returns True if the given number is a prime number, false if not.
+/// </summary>
+/// <param name="number">The int number to check if it is a prime number.</param>
+/// <returns></returns>
 bool isPrime(int number)
 {
     if (number <= 0)
@@ -27,6 +31,10 @@ bool isPrime(int number)
     return true;
 }
 
+/// <summary>
+/// Prints to the screen if the given number is a prime number or not.
+/// </summary>
+/// <param name="number">The number to check if it prime or not.</param>
 void testNumber(char* number)
 {
     int number_value = std::atoi(number);
@@ -50,6 +58,7 @@ void testNumber(char* number)
     }
     std::cout << "The number " << number_value << text << std::endl;
 }
+
 
 int main(int argc, char** argv)
 {
