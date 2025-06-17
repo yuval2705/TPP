@@ -1,5 +1,5 @@
 #include <iostream>
-#include <math.h>
+#include <cmath>
 
 enum ReturnCodes
 {
@@ -24,10 +24,6 @@ double getInputFromUser()
     {
         throw std::exception("Invalid value!");
     }
-    if (x < 0)
-    {
-        throw std::exception("Negetive value had been given!");
-    }
     return x;
 }
 
@@ -38,7 +34,11 @@ double getInputFromUser()
  */
 void printSQRT(double value)
 {
-    std::cout << "The square root of: " << value << " is " << sqrt(value) << std::endl;
+    if (value < 0)
+    {
+        throw std::exception("Negetive value had been given!");
+    }
+    std::cout << "The square root of: " << value << " is " << std::sqrt(value) << std::endl;
 }
 
 int main()
