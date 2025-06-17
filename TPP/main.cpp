@@ -1,26 +1,56 @@
 #include <iostream>
 
-enum ReturnCodes {
+enum ReturnCodes
+{
     SUCCESS = 0,
-    INVALID_VALUE = 1
+    ERROR = -1
 };
 
-int main() {
+/*
+ * Asks the user for a double as an input.
+ * Throws an indicating error if its invalid.
+ *
+ * @Return a double representing the user's input.
+ */
+double getInputFromUser()
+{
     std::cout << "Enter a number to calculate its sqrt: ";
     double x = 0;
 
     std::cin >> x;
 
-    if (!std::cin) {
-        std::cout << "Unsupported value!" << std::endl;
-        return ReturnCodes::INVALID_VALUE;
+    if (!std::cin)
+    {
+        throw std::exception("Invalid value!");
     }
-
-    if (x < 0) {
-        std::cout << "Value must be a Non-Negetive!" << std::endl;
-        return ReturnCodes::INVALID_VALUE; 
+    if (x < 0)
+    {
+        throw std::exception("Negetive value had been given!");
     }
+    return x;
+}
 
-    std::cout << "The square root of: " << x << " is " << std::sqrt(x) << std::endl;
-    return ReturnCodes::SUCCESS;
+/*
+ * Prints the sqrt of the given value to the screen.
+ *
+ * @param value [IN]: The value the calculation.
+ */
+void printSQRT(double value)
+{
+    std::cout << "The square root of: " << value << " is " << std::sqrt(value) << std::endl;
+}
+
+int main()
+{
+    try
+    {
+        double x = getInputFromUser();
+        printSQRT(x);
+        return ReturnCodes::SUCCESS;
+    }
+    catch (const std::exception& exception)
+    {
+        std::cout << exception.what() << std::endl;
+        return ReturnCodes::ERROR;
+    }
 }
