@@ -38,7 +38,6 @@ void printTableRow(int row_value, int width, int cell_width) {
     for (int i = 1; i <= width; i++) {
         std::string curr_cell = "";
 
-        // If its the top left cell which shouldnt contain any value.
         curr_cell += std::to_string(i * row_value);
 
         for (int i = curr_cell.length(); i < CELL_WIDTH; i++)
