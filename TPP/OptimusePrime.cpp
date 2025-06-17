@@ -15,6 +15,11 @@ bool isPrime(int number)
     {
         throw std::exception("Invalid value " + number);
     }
+
+    if (number == 1)
+    {
+        return false;
+    }
     // Its enough to check all the number until the sqrt of the value and not value / 2
     for (int i = 2; i <= std::sqrt(number); i++)
     {
