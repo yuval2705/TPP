@@ -9,6 +9,21 @@ enum ReturnCodes
 const int TABLE_WIDTH = 11;
 const int TABLE_HEIGHT = 11;
 const int CELL_WIDTH = 7;
+const char ROW_DIVIDER = '-';
+const char CELL_DIVIDER = '|';
+const char CELL_SPACE_FILLER = ' ';
+
+
+void printDividerRow(std::string row)
+{
+    std::string divider = "";
+    for (int i = 0; i < row.length(); i++)
+    {
+        divider += ROW_DIVIDER;
+    }
+    std::cout << divider << std::endl;
+}
+
 
 /*
 * Prints a single row of the multipication table.
@@ -18,43 +33,27 @@ const int CELL_WIDTH = 7;
 * @param cell_width [IN]: The width of each cell.
 */
 void printTableRow(int row_value, int width, int cell_width) {
-    std::string row = "";
-    for (int i = 0; i <= width; i++) {
+    std::string row = "|";
+    
+    for (int i = 1; i <= width; i++) {
         std::string curr_cell = "";
 
-        if (row_value == 0 && i == 0) {
-            curr_cell += " ";
-        }
-        else if (row_value == 0)
-        {
-            curr_cell += std::to_string(i);
-        }
-        else if (i == 0)
-        {
-            curr_cell += std::to_string(row_value);
-        }
-        else
-        {
-            curr_cell += std::to_string(i * row_value);
-        }
+        // If its the top left cell which shouldnt contain any value.
+        curr_cell += std::to_string(i * row_value);
 
         for (int i = curr_cell.length(); i < CELL_WIDTH; i++)
         {
-            curr_cell += " ";
+            curr_cell += CELL_SPACE_FILLER;
         }
         
         row += curr_cell;
-        row += "|";
+        row += CELL_DIVIDER;
     }
 
-    std::string divider = "";
-    for (int i = 0; i <= row.length(); i++)
-    {
-        divider += "-";
-    }
     std::cout << row << std::endl;
-    std::cout << divider << std::endl;
+    printDividerRow(row);
 }
+
 
 /*
  * Prints the multipication table in the given dims.
@@ -65,7 +64,7 @@ void printTableRow(int row_value, int width, int cell_width) {
  */
 void printMultipicationTable(int width, int height, int cell_width)
 {
-    for (int i = 0; i <= height; i++) {
+    for (int i = 1; i <= height; i++) {
         printTableRow(i, width, cell_width);
     }
 }
