@@ -13,13 +13,19 @@ enum ReturnCodes
 /// Returns True if the given number is a prime number, false if not.
 /// </summary>
 /// <param name="number">The int number to check if it is a prime number.</param>
-/// <returns></returns>
+/// <returns>A bool value representing if the given number is a Prime number.</returns>
 bool isPrime(int number)
 {
     if (number <= 0)
     {
         throw std::exception("Invalid value " + number);
     }
+    
+    if (number == 1)
+    {
+        return false;
+    }
+
     // Its enough to check all the number until the sqrt of the value and not value / 2
     for (int i = 2; i <= std::sqrt(number); i++)
     {
