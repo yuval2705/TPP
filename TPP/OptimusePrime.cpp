@@ -8,7 +8,7 @@
 /// Returns True if the given number is a prime number, false if not.
 /// </summary>
 /// <param name="number">The int number to check if it is a prime number.</param>
-/// <returns></returns>
+/// <returns>A bool value representing if the given number is a prime number or not.</returns>
 bool isPrime(int number)
 {
     if (number <= 0)
@@ -44,36 +44,4 @@ void testIfPrimeNumber(int number)
         text += " is NOT Prime!";
     }
     std::cout << "The number " << number << text << std::endl;
-}
-
-
-int main(int argc, char** argv)
-{
-    try
-    {
-        if (argc < 2)
-        {
-            std::cout << "Usage: {path} {Natural_Nuber}" << std::endl;
-            return ReturnCodes::INVLID_NUM_ARGS;
-        }
-        else
-        {
-            for (int i = 1; i < argc; i++)
-            {
-                int number_value = std::atoi(argv[i]);
-
-                if (number_value == 0)
-                {
-                    throw std::exception("Invalid number " + number_value);
-                }
-                testIfPrimeNumber(number_value);
-            }
-        }
-    }
-    catch (const std::exception& exception)
-    {
-        std::cout << exception.what() << std::endl;
-        return ReturnCodes::ERROR;
-    }
-    return ReturnCodes::SUCCESS;
 }
