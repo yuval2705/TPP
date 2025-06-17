@@ -1,9 +1,10 @@
 #include <iostream>
+#include <math.h>
 
 enum ReturnCodes
 {
     SUCCESS = 0,
-    ERROR = -1
+    ERROR
 };
 
 /*
@@ -37,7 +38,7 @@ double getInputFromUser()
  */
 void printSQRT(double value)
 {
-    std::cout << "The square root of: " << value << " is " << std::sqrt(value) << std::endl;
+    std::cout << "The square root of: " << value << " is " << sqrt(value) << std::endl;
 }
 
 int main()
