@@ -23,6 +23,10 @@ int main()
     std::cout << "Enter the number of primes you want to get: ";
     std::cin >> arr_length;
 
+    if (arr_length <= 0)
+    {
+        throw std::exception("Arr length should be at least 1");
+    }
     int* arr = new int[arr_length]{};
     fillWithPrimes(arr, arr_length);
     printArr(arr, arr_length);
