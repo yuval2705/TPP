@@ -2,16 +2,16 @@
 #include <string>
 #include "CalculatorException.h"
 
-CalculatorException::CalculatorException(char* text) : std::exception(text)
+CalculatorException::CalculatorException(std::string text) : std::exception(text.c_str())
 {
 }
 
 
-DividedByZero::DividedByZero() : CalculatorException((char*)"Divided by zero!")
+DividedByZero::DividedByZero() : CalculatorException("Divided by zero!")
 {
 }
 
 
-UnsupportedOperation::UnsupportedOperation(char operation) : CalculatorException((char*)("Unsupport operation " + operation))
+UnsupportedOperation::UnsupportedOperation(char operation) : CalculatorException(std::string(1, operation))
 {
 }

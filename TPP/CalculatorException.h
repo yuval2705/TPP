@@ -6,7 +6,7 @@ class CalculatorException : public std::exception
 {
   public:
     CalculatorException();
-    CalculatorException(char* text);
+    CalculatorException(std::string text);
     
 };
 
