@@ -56,7 +56,7 @@ void ComplexNumber::setImaginary(double imaginary)
  * @param z [IN] The ComplexNumber to add to this number.
  * @return A new ComplexNumber that is the result of the addition.
  */
-ComplexNumber ComplexNumber::operator+(ComplexNumber& z)
+ComplexNumber ComplexNumber::operator+(const ComplexNumber& z) const
 {
     return ComplexNumber(this->getReal() + z.getReal(), this->getImaginary() + z.getImaginary());
 }
@@ -67,7 +67,7 @@ ComplexNumber ComplexNumber::operator+(ComplexNumber& z)
  * @param z [IN] The ComplexNumber to subtract from this number.
  * @return A new ComplexNumber that is the result of the substraction.
  */
-ComplexNumber ComplexNumber::operator-(ComplexNumber& z)
+ComplexNumber ComplexNumber::operator-(const ComplexNumber& z) const
 {
     return ComplexNumber(this->getReal() - z.getReal(), this->getImaginary() - z.getImaginary());
 }
@@ -79,7 +79,7 @@ ComplexNumber ComplexNumber::operator-(ComplexNumber& z)
 * @param z [IN] The ComplexNumber to multiply with this number.
 * @return A new ComplexNumber that is the result of the multiplication.
 */
-ComplexNumber ComplexNumber::operator*(ComplexNumber& z)
+ComplexNumber ComplexNumber::operator*(const ComplexNumber& z) const
 {
     double real = (this->getReal() * z.getReal()) - (this->getImaginary() * z.getImaginary());
     double imaginary = (this->getReal() * z.getImaginary()) + (this->getImaginary() * z.getReal());
@@ -91,7 +91,7 @@ ComplexNumber ComplexNumber::operator*(ComplexNumber& z)
 * 
 * @return A string represention of the ComplexNumber.
 */
-std::string ComplexNumber::to_string()
+std::string ComplexNumber::to_string() const
 {
     std::string numStr = std::to_string(this->getReal());
     numStr += " + ";

@@ -41,7 +41,7 @@ class ComplexNumber
      * @param z [IN] The ComplexNumber to add to this number.
      * @return A new ComplexNumber that is the result of the addition.
      */
-    ComplexNumber operator+(ComplexNumber& z);
+    ComplexNumber operator+(const ComplexNumber& z) const;
     
     /*
      * Subtracts this ComplexNumber with the given ComplexNumber.
@@ -49,7 +49,7 @@ class ComplexNumber
      * @param z [IN] The ComplexNumber to subtract from this number.
      * @return A new ComplexNumber that is the result of the substraction.
      */
-    ComplexNumber operator-(ComplexNumber& z);
+    ComplexNumber operator-(const ComplexNumber& z) const;
 
     /*
      * Multiplys this ComplexNumber with the given ComplexNumber.
@@ -57,14 +57,14 @@ class ComplexNumber
      * @param z [IN] The ComplexNumber to multiply with this number.
      * @return A new ComplexNumber that is the result of the multiplication.
      */
-    ComplexNumber operator*(ComplexNumber& z);
+    ComplexNumber operator*(const ComplexNumber& z) const;
 
     /*
      * The string represention of the ComplexNumber.
      *
      * @return A string represention of the ComplexNumber.
      */
-    std::string to_string();
+    std::string to_string() const;
 
   private:
     double m_real;
