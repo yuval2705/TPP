@@ -6,15 +6,13 @@ StringBasic::StringBasic(char* str)
 {
     this->m_length = (unsigned)std::strlen(str);
 
-    this->m_str = new char[this->m_length + 1];
-    std::memset(this->m_str, 0, this->m_length + 1);
+    this->m_str = new char[this->m_length + 1]{0};
     std::memcpy(this->m_str, str, m_length);
 }
 
 StringBasic::StringBasic(const char str[]) : StringBasic((char*)(str))
 {
 }
-
 
 StringBasic::StringBasic() : StringBasic("")
 {
@@ -25,11 +23,9 @@ StringBasic::StringBasic(char chr) : StringBasic("-")
     this->m_str[0] = chr;
 }
 
-StringBasic::StringBasic(int number)
+StringBasic::StringBasic(StringBasic& str) : StringBasic(str.getStr())
 {
-    char
 }
-
 
 unsigned StringBasic::getLength()
 {
@@ -43,5 +39,5 @@ char* StringBasic::getStr()
 
 StringBasic::~StringBasic()
 {
-    delete this->m_str;
+    delete[] this->m_str;
 }

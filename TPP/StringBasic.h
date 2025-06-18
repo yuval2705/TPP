@@ -11,11 +11,18 @@ class StringBasic
 
     ~StringBasic();
 
-    void append(StringBasic& str);
-    void append(char chr);
-    void append(char* str);
-
+    /*
+    * Return the current value of m_length.
+    * 
+    * @return The current value of m_length.
+    */
     unsigned getLength();
+
+    /*
+     * Return the current value of m_str.
+     *
+     * @return The current value of m_str.
+     */
     char* getStr();
 
     //No need for setters!
