@@ -1,7 +1,7 @@
 #pragma once
 class Calculator
 {
-  public:
+  private:
     Calculator() = default;
     
     /**
@@ -11,7 +11,7 @@ class Calculator
      * @param val1 [IN] The second number to add.
      * @return The sum of the two numbers given.
      */
-    double add(double val1, double val2);
+    static double add(double val1, double val2);
 
     /**
      * Subtracts the second double from the first one.
@@ -20,7 +20,7 @@ class Calculator
      * @param val1 [IN] The number to subtract.
      * @return The value of the first value subtracted by the second.
      */
-    double subtract(double val1, double val2);
+    static double subtract(double val1, double val2);
 
     /**
      * Multiply the two given values.
@@ -29,7 +29,7 @@ class Calculator
      * @param val1 [IN] The second number to multiply with.
      * @return The multiplication value of the two given numbers.
      */
-    double multiply(double val1, double val2);
+    static double multiply(double val1, double val2);
 
     /**
      * Divides the first value by the second value.
@@ -38,8 +38,9 @@ class Calculator
      * @param val1 [IN] The number to divde by.
      * @return The result of the first number divided by the second.
      */
-    double divide(double val1, double val2);
+    static double divide(double val1, double val2);
     
+  public:
     /**
      * Calculates the math operation between the 2 given numbers.
      *
@@ -48,5 +49,5 @@ class Calculator
      * @param val1 [IN] The second number for the calculation.
      * @return The result of the given operation between the 2 numbers.
      */
-    double calculate(double val1, char operation, double val2);
+    static double calculate(double val1, char operation, double val2);
 };
