@@ -16,14 +16,14 @@ class StringBasic
     * 
     * @return The current value of m_length.
     */
-    unsigned getLength();
+    unsigned getLength() const;
 
     /*
      * Return the current value of m_str.
      *
      * @return The current value of m_str.
      */
-    char* getStr();
+    char* getStr() const;
 
     //No need for setters!
 

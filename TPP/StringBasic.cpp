@@ -27,12 +27,12 @@ StringBasic::StringBasic(StringBasic& str) : StringBasic(str.getStr())
 {
 }
 
-unsigned StringBasic::getLength()
+unsigned StringBasic::getLength() const
 {
     return this->m_length;
 }
 
-char* StringBasic::getStr()
+char* StringBasic::getStr() const
 {
     return this->m_str;
 }
