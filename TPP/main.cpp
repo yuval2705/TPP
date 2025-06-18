@@ -6,12 +6,6 @@
 
 void main()
 {
-    /*
-    std::cout << calculator.add(1, 2.14) << std::endl;
-    std::cout << calculator.subtract(3.14, 2.14) << std::endl;
-    std::cout << calculator.multiply(1, 2.14) << std::endl;
-    std::cout << calculator.divide(1, 2.14) << std::endl;
-    */
 
     std::cout << Calculator::calculate(1, '+', 2.14) << std::endl;
     std::cout << Calculator::calculate(1, '-', 2.14) << std::endl;
