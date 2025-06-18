@@ -2,9 +2,7 @@
 #include "StringBasic.h"
 #include <string>
 
-
-
-StringBasic::StringBasic(const char str[])
+StringBasic::StringBasic(char* str)
 {
     this->m_length = (unsigned)std::strlen(str);
 
@@ -13,16 +11,25 @@ StringBasic::StringBasic(const char str[])
     std::memcpy(this->m_str, str, m_length);
 }
 
-StringBasic::StringBasic(char* str)
+StringBasic::StringBasic(const char str[]) : StringBasic((char*)(str))
 {
-    this->m_length = (unsigned)std::strlen(str);
-    this->m_str = str;
 }
 
 
 StringBasic::StringBasic() : StringBasic("")
 {
 }
+
+StringBasic::StringBasic(char chr) : StringBasic("-")
+{
+    this->m_str[0] = chr;
+}
+
+StringBasic::StringBasic(int number)
+{
+    char
+}
+
 
 unsigned StringBasic::getLength()
 {
