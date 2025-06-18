@@ -3,10 +3,12 @@
 
 ComplexNumber::ComplexNumber(double real, double imaginary) : m_real(real), m_imaginary(imaginary)
 {
+    // This is empty on purpose!
 }
 
 ComplexNumber::ComplexNumber() : ComplexNumber(0, 0)
 {
+    // This is empty on purpose!
 }
 
 /*
