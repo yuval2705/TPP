@@ -12,10 +12,12 @@ StringBasic::StringBasic(char* str)
 
 StringBasic::StringBasic(const char str[]) : StringBasic((char*)(str))
 {
+    // This is empty on purpose! We want the same things to happen for each type.
 }
 
 StringBasic::StringBasic() : StringBasic("")
 {
+    // This is empty on purpose! We want the same things to happen for each type.
 }
 
 StringBasic::StringBasic(char chr) : StringBasic("-")
@@ -25,6 +27,7 @@ StringBasic::StringBasic(char chr) : StringBasic("-")
 
 StringBasic::StringBasic(StringBasic& str) : StringBasic(str.getStr())
 {
+    // This is empty on purpose! We want the same things to happen for each type.
 }
 
 unsigned StringBasic::getLength() const
