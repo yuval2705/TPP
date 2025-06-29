@@ -15,6 +15,11 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="TPP.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
     <ClCompile Include="TPP.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
