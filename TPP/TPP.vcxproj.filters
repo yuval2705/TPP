@@ -15,7 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="TPP.cpp">
+    <ClCompile Include="mazrek.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
