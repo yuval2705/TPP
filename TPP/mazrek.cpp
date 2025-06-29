@@ -5,6 +5,7 @@
 
 #define SUCCESS (0)
 #define ERROR (-1)
+#define SLEEP_DURATION_MILLI (200)
 char DLL_PATH[] = "C:\\my_awesome_dll.dll";
 
 
@@ -12,17 +13,15 @@ char DLL_PATH[] = "C:\\my_awesome_dll.dll";
 * Opens a new thread in the given process and inside loads the DLL.
 * 
 * @param hProcess [IN] Handle to the target process to open the thread in.
+* @return The Return value of the opened thread.
 */
-void invoke_remote_thread_creation(HANDLE hProcess)
+DWORD invoke_remote_thread_creation(HANDLE hProcess)
 {
     LPVOID target_memory = VirtualAllocEx(hProcess, NULL, sizeof(DLL_PATH), MEM_COMMIT, PAGE_EXECUTE_READWRITE);
     WriteProcessMemory(hProcess, target_memory, DLL_PATH, sizeof(DLL_PATH), NULL);
     
-    HMODULE hKernel22 = LoadLibraryA("kernel32.dll");
     // This can happen because kernel32 usally loads to the same address!
-    FARPROC load_module_addr = GetProcAddress(hKernel22, (LPCSTR)"LoadLibraryA");
-
-
+    FARPROC load_module_addr = GetProcAddress(LoadLibraryA("kernel32.dll"), (LPCSTR) "LoadLibraryA");
 
     HANDLE new_thread_handle = CreateRemoteThread(hProcess, NULL, 0, (LPTHREAD_START_ROUTINE)load_module_addr, target_memory, 0, NULL);
     
@@ -31,17 +30,17 @@ void invoke_remote_thread_creation(HANDLE hProcess)
         printf("Failed to invoke new remote thread!\n");
         DWORD error_code = GetLastError();
         printf("Couldn't open thread. Error code is: %d\n", error_code);
-        exit(ERROR);
+        return ERROR;
     }
     printf("Created the new thread!\n");
     
     DWORD thread_ret_val = 1;
-    GetExitCodeThread(new_thread_handle, &thread_ret_val);
-    while (thread_ret_val == STILL_ACTIVE)
+    do
     {
+        Sleep(SLEEP_DURATION_MILLI);
         GetExitCodeThread(new_thread_handle, &thread_ret_val);
-    }
-    printf("Thread exit value is: %d\n", thread_ret_val);
+    } while (thread_ret_val == STILL_ACTIVE);
+    return thread_ret_val;
 }
 
 
@@ -57,13 +56,12 @@ int main(int argc, char** argv)
 
     if (target_handle == NULL)
     {
-        printf("Failed to get %d handle!\n", target_pid);
-        DWORD error_code = GetLastError();
-        printf("%d\n", error_code);
-        exit(ERROR);
+        printf("Failed to get the handle for target pid: %d!\n", target_pid);
+        printf("%d\n", GetLastError());
+        return ERROR;
     }
 
-    invoke_remote_thread_creation(target_handle);
-
-    return SUCCESS;
+    DWORD thread_ret_val = invoke_remote_thread_creation(target_handle);
+    printf("Thread exit value is: %d\n", thread_ret_val);
+    return thread_ret_val;
 }
