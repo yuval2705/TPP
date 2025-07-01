@@ -4,18 +4,18 @@
 
 
 /*
-* Checks if the registry entry given exists.
+* @brief Checks if the registry entry given exists.
 * 
 * @param regKey [IN] The main registry key desired.
 * @param path [IN] The path in the registry to the desired key.
 * @param entryName [IN] The name of the desired entry.
 * @return TRUE if the entry do exists, FALSE if not.
 */
-bool isEntryExists(HKEY regKey, std::string path, std::string entryName);
+bool isRegEntryExists(HKEY regKey, std::string path, std::string entryName);
 
 
 /*
-* Adds the given string entry to the registry.
+* @brief Adds the given string entry to the registry.
 * 
 * @param regKey [IN] The main registry key desired.
 * @param path [IN] The path in the registry to the desired key.
@@ -24,3 +24,15 @@ bool isEntryExists(HKEY regKey, std::string path, std::string entryName);
 * @return LSTATUS of the actions.
 */
 LSTATUS addRegEntry(HKEY regKey, std::string path, std::string entryName, std::string value);
+
+
+
+/*
+ * @brief Adds if the given program path is in the registry entry.
+ * If not it adds it.
+ *
+ * @param path [IN] The path in the registry to the desired key.
+ * @param entryName [IN] The name of the desired entry.
+ * @param programPath [IN] The path for the executable to add.
+ */
+void addRegEntryIfNotExists(std::string path, std::string entryName, std::string programPath);
