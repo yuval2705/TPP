@@ -1,25 +1,23 @@
 #include "server.h"
-#include <WSPiApi.h>
 #include <iostream>
+
+
+#define DEFAULT_BUFFER_LEN (512)
+
+SOCKET ManagementServer::getListeningSocket()
+{
+    return this->m_listening_socket;
+}
+
+fd_set* ManagementServer::getOpenSockets()
+{
+    return this->m_openSockets;
+}
 
 SOCKET ManagementServer::init_listening_socket(std::string ip, int port)
 {
-    struct addrinfo *result = NULL, *ptr = NULL, hints;
-
-    ZeroMemory(&hints, sizeof(hints));
-    hints.ai_family = AF_INET;
-    hints.ai_socktype = SOCK_STREAM;
-    hints.ai_protocol = IPPROTO_TCP;
-    hints.ai_flags = AI_PASSIVE;
 
     // Resolve the local address and port to be used by the server
-    int iResult = getaddrinfo(NULL, DEFAULT_MANAGER_SERVER_PORT, &hints, &result);
-    if (iResult != 0)
-    {
-        printf("getaddrinfo failed: %d\n", iResult);
-        WSACleanup();
-        return NULL;
-    }
 
     SOCKET listenSocket = INVALID_SOCKET;
     listenSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
@@ -27,22 +25,23 @@ SOCKET ManagementServer::init_listening_socket(std::string ip, int port)
     if (listenSocket == INVALID_SOCKET)
     {
         printf("Error at socket(): %ld\n", WSAGetLastError());
-        freeaddrinfo(result);
         WSACleanup();
         return NULL;
     }
 
+    struct sockaddr_in serverAddr;
+    serverAddr.sin_family = AF_INET;
+    serverAddr.sin_addr.s_addr = inet_addr(ip.c_str());
+    serverAddr.sin_port = htons((u_short)port);
 
-    iResult = bind(listenSocket, result->ai_addr, (int)result->ai_addrlen);
-    if (iResult == SOCKET_ERROR)
+    int bindingRes = bind(listenSocket, (SOCKADDR*)&serverAddr, sizeof(serverAddr));
+    if (bindingRes == SOCKET_ERROR)
     {
         printf("bind failed with error: %d\n", WSAGetLastError());
-        freeaddrinfo(result);
         closesocket(listenSocket);
         WSACleanup();
         return NULL;
     }
-    freeaddrinfo(result);
 
     return listenSocket;
 }
@@ -62,6 +61,36 @@ void ManagementServer::acceptConnection()
 }
 
 
+ManagementServer::ManagementServer(std::string ip, int port)
+    : m_listening_socket(ManagementServer::init_listening_socket(ip, port)), m_openSockets(new fd_set())
+{
+    if (this->getListeningSocket() != NULL)
+    {
+        FD_SET(this->getListeningSocket(), this->getOpenSockets());
+    }
+}
+
+ManagementServer::~ManagementServer()
+{
+    closesocket(this->m_listening_socket);
+    delete this->m_openSockets;
+    WSACleanup();
+}
+
+
+void ManagementServer::handleRequest(SOCKET clientSock)
+{
+    char recvBuf[DEFAULT_BUFFER_LEN];
+    int bytesReceived = recv(clientSock, recvBuf, sizeof(recvBuf), 0);
+    if (bytesReceived <= 0)
+    {
+        // need to handle this one!
+        return;
+    }
+    std::cout << recvBuf << std::endl;
+}
+
+
 void ManagementServer::start()
 {
     if (listen(this->m_listening_socket, SOMAXCONN) == SOCKET_ERROR)
@@ -72,13 +101,12 @@ void ManagementServer::start()
         return;
     }
         
-    SOCKET client_socket = INVALID_SOCKET;
     while (TRUE)
     {
         fd_set readables = *this->getOpenSockets();
         int count = select(0, &readables, NULL, NULL, NULL);
 
-        for (int i = 0; i < readables.fd_count; i++)
+        for (unsigned i = 0; i < readables.fd_count; i++)
         {
             if (readables.fd_array[i] == this->m_listening_socket)
             {
@@ -90,6 +118,4 @@ void ManagementServer::start()
             }
         }
     }
-
-
 }
