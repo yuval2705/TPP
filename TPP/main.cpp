@@ -38,29 +38,33 @@ int showMessageBox(const std::string& title, const std::string& body) {
 * @param argc [IN] The number of arguments given.
 * @param argv [IN] The arguments.
 */
-int main(int argc, char** argv) {
-    HANDLE programMutex;
-    try {
-        programMutex = CreateMutexA(NULL, FALSE, SHARED_MUTEX_NAME.c_str());
+int main(int argc, char** argv)
+{
+    try
+    {
+        HANDLE programMutex = CreateMutexA(NULL, FALSE, SHARED_MUTEX_NAME.c_str());
 
         // Can still meaning there is already a running instance.
-        if (programMutex == NULL) {
+        if (programMutex == NULL)
+        {
             programMutex = OpenMutexA(SYNCHRONIZE, FALSE, SHARED_MUTEX_NAME.c_str());
 
-            if (programMutex == NULL) {
+            if (programMutex == NULL)
+            {
                 throw std::exception((std::string("Cannot create or open the shared mutex with error: ") +
-                                      std::to_string(GetLastError())).c_str());
+                                      std::to_string(GetLastError()))
+                                         .c_str());
             }
         }
+        WaitForSingleObject(programMutex, INFINITE);
+        addRegEntryIfNotExists(AUTORUN_REG_PATH, AUTORUN_ENTRY_NAME, argv[0]);
+
+        int messageBoxCode = showMessageBox(MESSAGE_BOX_TITLE, MESSAGE_BOX_BODY);
+        Sleep(SLEEPING_DURATION);
+        ReleaseMutex(programMutex);
+
+        return messageBoxCode;
     } catch (std::exception& exception) {
         std::cout << exception.what() << std::endl;
     }
-    WaitForSingleObject(programMutex, INFINITE);
-    addRegEntryIfNotExists(AUTORUN_REG_PATH, AUTORUN_ENTRY_NAME, argv[0]);
-
-    int messageBoxCode = showMessageBox(MESSAGE_BOX_TITLE, MESSAGE_BOX_BODY);
-    Sleep(SLEEPING_DURATION);
-    ReleaseMutex(programMutex);
-
-    return messageBoxCode;
 }
