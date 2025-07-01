@@ -1,7 +1,9 @@
 #include "registry_actions.h"
+
 #include <iostream>
 
-bool isRegEntryExists(HKEY regKey, std::string path, std::string entryName) {
+bool isRegEntryExists(HKEY regKey, const std::string& path, const std::string& entryName)
+{
     DWORD entryType;
     PCHAR entryValue;
     DWORD valueSize;
@@ -16,7 +18,8 @@ bool isRegEntryExists(HKEY regKey, std::string path, std::string entryName) {
     return true;
 }
 
-LSTATUS addRegEntry(HKEY regKey, std::string path, std::string entryName, std::string value) {
+LSTATUS addRegEntry(HKEY regKey, const std::string& path, const std::string& entryName, const std::string& entryValue)
+{
     HKEY newValueKey;
     LSTATUS openKeyStatus = RegOpenKeyExA(regKey, path.c_str(), 0, KEY_SET_VALUE, &newValueKey);
     if (openKeyStatus != ERROR_SUCCESS) {
@@ -24,7 +27,7 @@ LSTATUS addRegEntry(HKEY regKey, std::string path, std::string entryName, std::s
     }
 
     LSTATUS setNewValueStatus = RegSetValueExA(newValueKey, entryName.c_str(), 0, REG_SZ,
-                                              (const BYTE*)("\"" + value + "\"").c_str(), value.length() + 3);
+                (const BYTE*)("\"" + entryValue + "\"").c_str(), entryValue.length() + 3);
     
     LSTATUS closeNewValueKey = RegCloseKey(newValueKey);
     if (setNewValueStatus != ERROR_SUCCESS) {
@@ -34,8 +37,9 @@ LSTATUS addRegEntry(HKEY regKey, std::string path, std::string entryName, std::s
     return closeNewValueKey;
 }
 
-void addRegEntryIfNotExists(std::string path, std::string entryName, std::string programPath) {
+void addRegEntryIfNotExists(const std::string& path, const std::string& entryName, const std::string& entryValue)
+{
     if (!isRegEntryExists(HKEY_CURRENT_USER, path, entryName)) {
-        addRegEntry(HKEY_CURRENT_USER, path, entryName, programPath);
+        addRegEntry(HKEY_CURRENT_USER, path, entryName, entryValue);
     }
 }

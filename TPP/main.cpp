@@ -1,11 +1,19 @@
 #include "registry_actions.h"
+
 #include <string>
+
 #include <iostream>
 
 const std::string SHARED_MUTEX_NAME = "MANAGEMENT-SHARED-MUTEX";
 
 const std::string AUTORUN_REG_PATH = "Software\\Microsoft\\Windows\\CurrentVersion\\Run";
 const std::string AUTORUN_ENTRY_NAME = "Management-App";
+
+#define MILLISECOND (1000)
+#define SECOND (1 * MILLISECOND)
+#define MINUTE (SECOND * 60)
+#define HOUR (MINUTE * 60)
+#define SLEEPING_DURATION (HOUR)
 
 #define ERROR (-1)
 
@@ -41,8 +49,7 @@ int main(int argc, char** argv) {
                                       std::to_string(GetLastError())).c_str());
             }
         }
-    }
-    catch (std::exception& exception) {
+    } catch (std::exception& exception) {
         std::cout << exception.what() << std::endl;
     }
     WaitForSingleObject(programMutex, INFINITE);
@@ -51,7 +58,7 @@ int main(int argc, char** argv) {
     std::string messageBoxTitle = "INFO";
     std::string messageBoxBody = "MANAGEMENT PROGRAM IS UP";
     int messageBoxCode = showMessageBox(messageBoxTitle, messageBoxBody);
-
+    Sleep(SLEEPING_DURATION);
     ReleaseMutex(programMutex);
 
     return messageBoxCode;

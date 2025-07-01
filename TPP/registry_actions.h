@@ -1,5 +1,7 @@
 #pragma once
+
 #include <Windows.h>
+
 #include <string>
 
 
@@ -11,7 +13,7 @@
 * @param entryName [IN] The name of the desired entry.
 * @return TRUE if the entry do exists, FALSE if not.
 */
-bool isRegEntryExists(HKEY regKey, std::string path, std::string entryName);
+bool isRegEntryExists(HKEY regKey, const std::string& path, const std::string& entryName);
 
 
 /*
@@ -20,10 +22,10 @@ bool isRegEntryExists(HKEY regKey, std::string path, std::string entryName);
 * @param regKey [IN] The main registry key desired.
 * @param path [IN] The path in the registry to the desired key.
 * @param entryName [IN] The name of the desired entry.
-* @param value [IN] The value of the entry.
+* @param entryValue [IN] The value of the entry.
 * @return LSTATUS of the actions.
 */
-LSTATUS addRegEntry(HKEY regKey, std::string path, std::string entryName, std::string value);
+LSTATUS addRegEntry(HKEY regKey, const std::string& path, const std::string& entryName, const std::string& entryValue);
 
 
 
@@ -33,6 +35,6 @@ LSTATUS addRegEntry(HKEY regKey, std::string path, std::string entryName, std::s
  *
  * @param path [IN] The path in the registry to the desired key.
  * @param entryName [IN] The name of the desired entry.
- * @param programPath [IN] The path for the executable to add.
+ * @param entryValue [IN] The path for the executable to add.
  */
-void addRegEntryIfNotExists(std::string path, std::string entryName, std::string programPath);
+void addRegEntryIfNotExists(const std::string& path, const std::string& entryName, const std::string& entryValue);
