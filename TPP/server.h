@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
-#include <winsock.h>
+#define _WINSOCK_DEPRECATED_NO_WARNINGS (1)
+#include <WinSock2.h>
 
 
 #define DEFAULT_MANAGER_SERVER_PORT (33333)

