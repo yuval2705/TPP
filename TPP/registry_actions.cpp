@@ -36,7 +36,7 @@ LSTATUS addRegEntry(HKEY regKey, std::string path, std::string entryName, std::s
         return openKeyStatus;
     }
 
-    LSTATUS setNewValueStatus =
-        RegSetValueExA(newValueKey, entryName.c_str(), 0, REG_SZ, (const BYTE*)value.c_str(), value.length() + 1);
+    LSTATUS setNewValueStatus = RegSetValueExA(newValueKey, entryName.c_str(), 0, REG_SZ,
+                                               (const BYTE*)("\"" + value + "\"").c_str(), value.length() + 3);
     return setNewValueStatus;
 }
