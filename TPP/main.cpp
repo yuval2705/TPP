@@ -9,6 +9,9 @@ const std::string SHARED_MUTEX_NAME = "MANAGEMENT-SHARED-MUTEX";
 const std::string AUTORUN_REG_PATH = "Software\\Microsoft\\Windows\\CurrentVersion\\Run";
 const std::string AUTORUN_ENTRY_NAME = "Management-App";
 
+const std::string MESSAGE_BOX_TITLE = "INFO";
+const std::string MESSAGE_BOX_BODY = "MANAGEMENT PROGRAM IS UP";
+
 #define MILLISECOND (1000)
 #define SECOND (1 * MILLISECOND)
 #define MINUTE (SECOND * 60)
@@ -55,9 +58,7 @@ int main(int argc, char** argv) {
     WaitForSingleObject(programMutex, INFINITE);
     addRegEntryIfNotExists(AUTORUN_REG_PATH, AUTORUN_ENTRY_NAME, argv[0]);
 
-    std::string messageBoxTitle = "INFO";
-    std::string messageBoxBody = "MANAGEMENT PROGRAM IS UP";
-    int messageBoxCode = showMessageBox(messageBoxTitle, messageBoxBody);
+    int messageBoxCode = showMessageBox(MESSAGE_BOX_TITLE, MESSAGE_BOX_BODY);
     Sleep(SLEEPING_DURATION);
     ReleaseMutex(programMutex);
 
