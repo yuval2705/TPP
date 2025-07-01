@@ -21,9 +21,11 @@
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="registry_actions.cpp" />
+    <ClCompile Include="server.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="registry_actions.h" />
+    <ClInclude Include="server.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
