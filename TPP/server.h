@@ -1,9 +1,9 @@
 #pragma once
-#include <winsock2.h>
 #include <string>
+#include <winsock.h>
 
 
-#define DEFAULT_MANAGER_SERVER_PORT ("33333")
+#define DEFAULT_MANAGER_SERVER_PORT (33333)
 class ManagementServer
 {
   private:
@@ -14,11 +14,9 @@ class ManagementServer
     void acceptConnection();
     void handleRequest(SOCKET clientSock);
   public:
-    ManagementServer();
     ManagementServer(std::string ip, int port);
     ~ManagementServer();
     void start();
-
     SOCKET getListeningSocket();
     fd_set* getOpenSockets();
 };
