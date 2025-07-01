@@ -40,9 +40,11 @@ int showMessageBox(const std::string& title, const std::string& body) {
 */
 int main(int argc, char** argv)
 {
+    HANDLE programMutex;
+    int retCode = ERROR;
     try
     {
-        HANDLE programMutex = CreateMutexA(NULL, FALSE, SHARED_MUTEX_NAME.c_str());
+        programMutex = CreateMutexA(NULL, FALSE, SHARED_MUTEX_NAME.c_str());
 
         // Can still meaning there is already a running instance.
         if (programMutex == NULL)
@@ -59,12 +61,19 @@ int main(int argc, char** argv)
         WaitForSingleObject(programMutex, INFINITE);
         addRegEntryIfNotExists(AUTORUN_REG_PATH, AUTORUN_ENTRY_NAME, argv[0]);
 
-        int messageBoxCode = showMessageBox(MESSAGE_BOX_TITLE, MESSAGE_BOX_BODY);
+        retCode = showMessageBox(MESSAGE_BOX_TITLE, MESSAGE_BOX_BODY);
         Sleep(SLEEPING_DURATION);
         ReleaseMutex(programMutex);
 
-        return messageBoxCode;
     } catch (std::exception& exception) {
         std::cout << exception.what() << std::endl;
+        retCode = ERROR;
     }
+
+    if (programMutex != NULL)
+    {
+        ReleaseMutex(programMutex);
+        CloseHandle(programMutex);
+    }
+    return retCode;
 }
