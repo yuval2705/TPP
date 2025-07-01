@@ -13,7 +13,8 @@ class ManagementServer
 
     static SOCKET init_listening_socket(std::string ip, int port);
     void acceptConnection();
-    void handleRequest(SOCKET clientSock);
+    void handleRequest(SOCKET clientSock, const std::string& request);
+    void handleReceive(SOCKET clientSock);
   public:
     ManagementServer(std::string ip, int port);
     ~ManagementServer();

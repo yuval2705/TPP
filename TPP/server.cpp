@@ -57,9 +57,7 @@ void ManagementServer::acceptConnection()
         WSACleanup();
         return;
     }
-    std::cout << "accepted new connection!" << std::endl;
     FD_SET(clientSocket, this->m_openSockets);
-    std::cout << this->m_openSockets->fd_count << std::endl;
 }
 
 
@@ -80,7 +78,7 @@ ManagementServer::~ManagementServer()
 }
 
 
-void ManagementServer::handleRequest(SOCKET clientSock)
+void ManagementServer::handleReceive(SOCKET clientSock)
 {
     int requestSize = 0;
     int bytesReceived = recv(clientSock, reinterpret_cast<char*>(&requestSize), sizeof(requestSize), 0);
@@ -96,8 +94,6 @@ void ManagementServer::handleRequest(SOCKET clientSock)
         // need to handle this one!
         return;
     }
-
-    std::cout << requestSize << std::endl;
 
     char recvBuf[DEFAULT_BUFFER_LEN] = {0};
     bytesReceived = recv(clientSock, recvBuf, requestSize, 0);
@@ -117,6 +113,12 @@ void ManagementServer::handleRequest(SOCKET clientSock)
 }
 
 
+void ManagementServer::handleRequest(SOCKET clientSock, const std::string& request)
+{
+
+}
+
+
 void ManagementServer::start()
 {
     std::cout << "starting the severv" << std::endl;
@@ -131,7 +133,6 @@ void ManagementServer::start()
     while (TRUE)
     {
         fd_set readables = *this->getOpenSockets();
-        std::cout << readables.fd_count << std::endl;
         int count = select(0, &readables, NULL, NULL, NULL);
         for (unsigned i = 0; i < readables.fd_count; i++)
         {
@@ -141,7 +142,7 @@ void ManagementServer::start()
             }
             else
             {
-                this->handleRequest(readables.fd_array[i]);
+                this->handleReceive(readables.fd_array[i]);
             }
         }
     }
