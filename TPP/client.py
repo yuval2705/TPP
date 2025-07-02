@@ -8,7 +8,7 @@ DEFAULT_SERVER_PORT = 33333
 MESSAGE_LEN_SIZE = 4
 
 
-class Client_Command(str, Enum):
+class ClientCommand(str, Enum):
     EXIT = "exit"
     PING = "ping"
 
@@ -69,10 +69,10 @@ def start_client(server_addr: str, server_port: int) -> None:
     client_sock = init_socket(server_addr, server_port)
 
     command = input("The command to execute: ")
-    while command != Client_Command.EXIT:
-        if command == Client_Command.PING:
+    while command != ClientCommand.EXIT:
+        if command == ClientCommand.PING:
             handle_ping(client_sock)
-            server_response = receive_from_server(client_sock)
+            server_response = receive_from_server(client_sock).decode()
             print(f"Server sent: {server_response}")
 
         command = input("The command to execute: ")

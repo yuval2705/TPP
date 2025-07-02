@@ -1,4 +1,5 @@
 #include "server.h"
+
 #include <iostream>
 #include <ws2tcpip.h>
 
@@ -10,7 +11,7 @@ fd_set* ManagementServer::getOpenSockets() {
     return this->m_openSockets;
 }
 
-SOCKET ManagementServer::initListeningSocket(std::string ip, int port) {
+SOCKET ManagementServer::initListeningSocket(const std::string& ip, int port) {
     WSADATA wsadata;
     WSAStartup(MAKEWORD(2, 2), &wsadata);
     // Resolve the local address and port to be used by the server
@@ -28,7 +29,7 @@ SOCKET ManagementServer::initListeningSocket(std::string ip, int port) {
     struct sockaddr_in serverAddr;
     serverAddr.sin_family = AF_INET;
     serverAddr.sin_addr.s_addr = inet_addr(ip.c_str());
-    serverAddr.sin_port = htons((u_short)port);
+    serverAddr.sin_port = htons(static_cast<u_short>(port));
 
     int bindingRes = bind(listenSocket, reinterpret_cast<SOCKADDR*>(&serverAddr), sizeof(serverAddr));
     if (bindingRes == SOCKET_ERROR) {

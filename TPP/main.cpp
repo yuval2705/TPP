@@ -3,7 +3,6 @@
 #include "registry_actions.h"
 
 #include <string>
-
 #include <iostream>
 
 const std::string SHARED_MUTEX_NAME = "MANAGEMENT-SHARED-MUTEX";
@@ -14,14 +13,14 @@ const std::string AUTORUN_ENTRY_NAME = "Management-App";
 const std::string MESSAGE_BOX_TITLE = "INFO";
 const std::string MESSAGE_BOX_BODY = "MANAGEMENT PROGRAM IS UP";
 
-#define MILLISECOND (1000)
-#define SECOND (1 * MILLISECOND)
-#define MINUTE (SECOND * 60)
-#define HOUR (MINUTE * 60)
-#define SLEEPING_DURATION (HOUR)
+const int MILLISECOND = 1000;
+const int SECOND = 1 * MILLISECOND;
+const int MINUTE = SECOND * 60;
+const int HOUR = MINUTE * 60;
+const int SLEEPING_DURATION = HOUR;
 
-#define ERROR (-1)
-#define SUCCESS (0)
+const int RET_CODE_ERROR = -1;
+const int RET_CODE_SUCCESS = 0;
 
 /*
 * @brief Displays a Message Box onto the screen.
@@ -43,7 +42,7 @@ int showMessageBox(const std::string& title, const std::string& body) {
 */
 int main(int argc, char** argv) {
     HANDLE programMutex;
-    int retValue = ERROR;
+    int retValue = RET_CODE_ERROR;
     try {
         programMutex = CreateMutexA(NULL, FALSE, SHARED_MUTEX_NAME.c_str());
 
@@ -63,11 +62,11 @@ int main(int argc, char** argv) {
         ManagementServer server = ManagementServer(DEFAULT_MANAGER_SERVER_IP, DEFAULT_MANAGER_SERVER_PORT);
         server.start();
         Sleep(SLEEPING_DURATION);
-        retValue = SUCCESS;
+        retValue = RET_CODE_SUCCESS;
 
     } catch (std::exception& exception) {
         std::cout << exception.what() << std::endl;
-        retValue = ERROR;
+        retValue = RET_CODE_ERROR;
     }
     
     if (programMutex != NULL) {
