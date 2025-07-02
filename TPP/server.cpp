@@ -2,6 +2,10 @@
 
 #include <iostream>
 #include <ws2tcpip.h>
+#include <map>
+#include <functional>
+#include <memory>
+
 
 SOCKET ManagementServer::getListeningSocket() {
     return this->m_listeningSocket;
@@ -73,7 +77,7 @@ ManagementServer::~ManagementServer() {
     WSACleanup();
 }
 
-
+/*
 std::string** ManagementServer::initActionToStringMapping() {
     std::string** stringMappings = new std::string* [NUM_OF_ACTIONS] {NULL};
     stringMappings[static_cast<unsigned int>(ManagementServer::Action::PING)] = new std::string("ping");
@@ -82,6 +86,19 @@ std::string** ManagementServer::initActionToStringMapping() {
 
     return stringMappings;
 }
+*/
+
+
+std::map<std::string, std::function<void(ManagementServer*, SOCKET, std::string&)>> ManagementServer::
+    initActionToStringMapping()
+{
+    using namespace std::placeholders;
+    std::map<std::string, std::function<void(ManagementServer*, SOCKET, std::string&)>> mappings;
+
+    mappings.insert({"ping", std::bind(&ManagementServer::handlePing, _1, _2, _3)});
+    mappings.insert({"run", std::bind(&ManagementServer::handlePing, _1, _2, _3)});
+}
+
 
 void ManagementServer::closeConnection(SOCKET sock) {
     if (FD_ISSET(sock, this->m_openSockets)) {
@@ -123,18 +140,16 @@ std::string ManagementServer::handleReceive(SOCKET clientSock) {
 }
 
 ManagementServer::Action ManagementServer::mapRequestToAction(std::string& request) {
-    for (int i = 1; i < ManagementServer::NUM_OF_ACTIONS; i++) {
-        std::string* currAction =  this->m_actionStringMappings[i];
-        if (currAction == NULL) {
-            return ManagementServer::Action::UNSUPPORTED_ACTION;
-        }
-        
-        if (request.length() < currAction->length()) {
+    for (const auto& [action, handler] : this->m_actionStringMappings) {
+
+        if (request.length() < action.length())
+        {
             continue;
         }
 
-        if (request.compare(0, currAction->length(), currAction->c_str()) == 0) {
-            request.erase(0, currAction->length());
+        if (request.compare(0, action.length(), action.c_str()) == 0)
+        {
+            request.erase(0, action.length());
             return static_cast<ManagementServer::Action>(i);
         }
     }
@@ -162,7 +177,8 @@ void ManagementServer::handleRun(SOCKET clientSock, const std::string& request_b
     if (reinterpret_cast<int>(result) > 32) {
         response = "File executed succesfuly!";
     } else {
-        switch (static_cast<int>(result)) {
+        switch (reinterpret_cast<int>(result))
+        {
         case ERROR_FILE_NOT_FOUND:
             response = "File not found!";
             break;
@@ -178,17 +194,21 @@ void ManagementServer::handleRun(SOCKET clientSock, const std::string& request_b
 }
 
 void ManagementServer::handleRequest(SOCKET clientSock, std::string& request) {
-    ManagementServer::Action action = this->mapRequestToAction(request);
+    for (const auto& [action, handler] : this->m_actionStringMappings)
+    {
 
-    switch (action) {
-    case ManagementServer::Action::PING:
-        this->handlePing(clientSock);
-        break;
-    case ManagementServer::Action::RUN:
-        this->handleRun(clientSock, request);
-    default:
-        break;
+        if (request.length() < action.length())
+        {
+            continue;
+        }
+
+        if (request.compare(0, action.length(), action.c_str()) == 0)
+        {
+            request.erase(0, action.length());
+            handler(*this, clientSock, request.substr(action.length() + 1));
+        }
     }
+    return ManagementServer::Action::UNSUPPORTED_ACTION;
 }
 
 void ManagementServer::handleSend(SOCKET clientSock, const std::string& response) {
