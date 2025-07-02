@@ -23,9 +23,8 @@ bool isRegEntryExists(HKEY regKey, const std::string& path, const std::string& e
 * @param path [IN] The path in the registry to the desired key.
 * @param entryName [IN] The name of the desired entry.
 * @param entryValue [IN] The value of the entry.
-* @return LSTATUS of the actions.
 */
-LSTATUS addRegEntry(HKEY regKey, const std::string& path, const std::string& entryName, const std::string& entryValue);
+void addRegEntry(HKEY regKey, const std::string& path, const std::string& entryName, const std::string& entryValue);
 
 
 
