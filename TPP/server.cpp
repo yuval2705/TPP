@@ -2,11 +2,9 @@
 #include <iostream>
 #include <ws2tcpip.h>
 
-#define DEFAULT_BUFFER_LEN (512)
-
 SOCKET ManagementServer::getListeningSocket()
 {
-    return this->m_listening_socket;
+    return this->m_listeningSocket;
 }
 
 fd_set* ManagementServer::getOpenSockets()
@@ -14,7 +12,7 @@ fd_set* ManagementServer::getOpenSockets()
     return this->m_openSockets;
 }
 
-SOCKET ManagementServer::init_listening_socket(std::string ip, int port)
+SOCKET ManagementServer::initListeningSocket(std::string ip, int port)
 {
     WSADATA wsadata;
     WSAStartup(MAKEWORD(2, 2), &wsadata);
@@ -60,25 +58,51 @@ void ManagementServer::acceptConnection()
     FD_SET(clientSocket, this->m_openSockets);
 }
 
-
 ManagementServer::ManagementServer(std::string ip, int port)
-    : m_listening_socket(ManagementServer::init_listening_socket(ip, port)), m_openSockets(new fd_set())
+    : m_listeningSocket(ManagementServer::initListeningSocket(ip, port)), m_openSockets(new fd_set())
 {
+    FD_ZERO(this->m_openSockets);
+
     if (this->getListeningSocket() != NULL)
     {
         FD_SET(this->getListeningSocket(), this->getOpenSockets());
     }
+
+    this->m_actionStringMappings = ManagementServer::initActionToStringMapping();
 }
 
 ManagementServer::~ManagementServer()
 {
-    closesocket(this->m_listening_socket);
+    closesocket(this->m_listeningSocket);
     delete this->m_openSockets;
+    for (int i = 0; i < NUM_OF_ACTIONS; i++)
+    {
+        delete this->m_actionStringMappings[i];
+    }
+    delete[] this->m_actionStringMappings;
     WSACleanup();
 }
 
 
-void ManagementServer::handleReceive(SOCKET clientSock)
+std::string** ManagementServer::initActionToStringMapping()
+{
+    std::string** stringMappings = new std::string*[NUM_OF_ACTIONS];
+    stringMappings[static_cast<unsigned int>(ManagementServer::Action::PING)] = new std::string("ping");
+    stringMappings[static_cast<unsigned int>(ManagementServer::Action::UNSUPPORTED_ACTION)] = new std::string("NULL");
+
+    return stringMappings;
+}
+
+void ManagementServer::closeConnection(SOCKET sock)
+{
+    if (FD_ISSET(sock, this->m_openSockets))
+    {
+        FD_CLR(sock, this->m_openSockets);
+    }
+    closesocket(sock);
+}
+
+std::string ManagementServer::handleReceive(SOCKET clientSock)
 {
     int requestSize = 0;
     int bytesReceived = recv(clientSock, reinterpret_cast<char*>(&requestSize), sizeof(requestSize), 0);
@@ -86,56 +110,106 @@ void ManagementServer::handleReceive(SOCKET clientSock)
     // Connection closing
     if (bytesReceived == 0)
     {
-        FD_CLR(clientSock, this->m_openSockets);
-        return;
+        this->closeConnection(clientSock);
+        return std::string("");
     }
     if (bytesReceived < 0)
     {
-        // need to handle this one!
-        return;
+        this->closeConnection(clientSock);
+        return std::string("");
     }
+    std::cout << requestSize << std::endl;
 
-    char recvBuf[DEFAULT_BUFFER_LEN] = {0};
+    char* recvBuf = new char[requestSize+1]{0};
     bytesReceived = recv(clientSock, recvBuf, requestSize, 0);
-    std::cout << recvBuf << std::endl;
-    
+
     // Connection closing
     if (bytesReceived == 0)
     {
-        FD_CLR(clientSock, this->m_openSockets);
-        return;
+        this->closeConnection(clientSock);
+        return std::string("");
     }
     if (bytesReceived < 0)
     {
-        // need to handle this one!
-        return;
+        this->closeConnection(clientSock);
+        return std::string("");
     }
+
+    std::string retString = std::string(recvBuf);
+    delete[] recvBuf;
+    return retString;
 }
 
-
-void ManagementServer::handleRequest(SOCKET clientSock, const std::string& request)
+ManagementServer::Action ManagementServer::mapRequestToAction(const std::string& request)
 {
-    switch ()
+    for (int i = 1; i < ManagementServer::NUM_OF_ACTIONS; i++)
     {
+        std::string* currAction =  this->m_actionStringMappings[i];
+        if (currAction == NULL)
+        {
+            return ManagementServer::Action::UNSUPPORTED_ACTION;
+        }
+        
+        if (request.length() < currAction->length())
+        {
+            continue;
+        }
+
+        if (request.compare(0, currAction->length(), currAction->c_str()) == 0)
+        {
+            return static_cast<ManagementServer::Action>(i);
+        }
+    }
+    return ManagementServer::Action::UNSUPPORTED_ACTION;
+}
+
+void ManagementServer::handlePing(SOCKET clientSock)
+{
+    this->handleSend(clientSock, "PONG");
+}
+
+void ManagementServer::handleRequest(SOCKET clientSock, std::string& request)
+{
+    ManagementServer::Action action = this->mapRequestToAction(request);
+    switch (action)
+    {
+    case ManagementServer::Action::PING:
+        this->handlePing(clientSock);
+        break;
     default:
         break;
     }
-    
 }
 
 void ManagementServer::handleSend(SOCKET clientSock, const std::string& response)
 {
+    int responseLen = response.length();
+    int sendResult = send(clientSock, reinterpret_cast<char*>(&responseLen), sizeof(responseLen), 0);
+    if (sendResult == SOCKET_ERROR)
+    {
+        //handle closing socket!
+        std::cout << "got error: " << WSAGetLastError() << std::endl; 
+        this->closeConnection(clientSock);
+        return;
+    }
 
+    sendResult = send(clientSock, response.c_str(), responseLen, 0);
+    if (sendResult == SOCKET_ERROR)
+    {
+        // handle closing socket!
+        this->closeConnection(clientSock);
+        std::cout << "got error: " << WSAGetLastError() << std::endl; 
+        return;
+    }
 }
-
 
 void ManagementServer::start()
 {
-    std::cout << "starting the severv" << std::endl;
-    if (listen(this->m_listening_socket, SOMAXCONN) == SOCKET_ERROR)
+    std::cout << "starting the sever" << std::endl;
+    if (listen(this->m_listeningSocket, SOMAXCONN) == SOCKET_ERROR)
     {
         std::cout << "Failed listening with error " << WSAGetLastError() << std::endl;
-        closesocket(this->m_listening_socket);
+        this->closeConnection(this->m_listeningSocket);
         WSACleanup();
         return;
     }
@@ -146,14 +220,21 @@ void ManagementServer::start()
         int count = select(0, &readables, NULL, NULL, NULL);
         for (unsigned i = 0; i < readables.fd_count; i++)
         {
-            if (readables.fd_array[i] == this->m_listening_socket)
+            if (readables.fd_array[i] == this->m_listeningSocket)
             {
                 this->acceptConnection();
             }
             else
             {
-                this->handleReceive(readables.fd_array[i]);
+                std::string request = this->handleReceive(readables.fd_array[i]);
+                if (request != "")
+                {
+                    this->handleRequest(readables.fd_array[i], request);
+                }
             }
         }
     }
+
+    this->closeConnection(this->m_listeningSocket);
+    WSACleanup();
 }

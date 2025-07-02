@@ -8,19 +8,26 @@
 class ManagementServer
 {
   private:
-    SOCKET m_listening_socket;
+    SOCKET m_listeningSocket;
     fd_set* m_openSockets;
+    std::string** m_actionStringMappings;
 
-    static SOCKET init_listening_socket(std::string ip, int port);
+    static SOCKET initListeningSocket(std::string ip, int port);
+    static std::string** initActionToStringMapping();
     void acceptConnection();
-    void handleRequest(SOCKET clientSock, const std::string& request);
-    void handleReceive(SOCKET clientSock);
+    void handleRequest(SOCKET clientSock, std::string& request);
+    std::string handleReceive(SOCKET clientSock);
     void handleSend(SOCKET clientSock, const std::string& response);
+    void handlePing(SOCKET clientSock);
+    void closeConnection(SOCKET sock);
   public:
-    enum class Actions : unsigned int
+    static const int NUM_OF_ACTIONS = 2;
+    enum class Action : unsigned int
     {
-        PING = 0
+        UNSUPPORTED_ACTION = 0,
+        PING = 1
     };
+    Action mapRequestToAction(const std::string& request);
     ManagementServer(std::string ip, int port);
     ~ManagementServer();
     void start();
