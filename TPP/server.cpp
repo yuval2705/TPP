@@ -115,6 +115,16 @@ void ManagementServer::handleReceive(SOCKET clientSock)
 
 void ManagementServer::handleRequest(SOCKET clientSock, const std::string& request)
 {
+    switch ()
+    {
+    default:
+        break;
+    }
+    
+}
+
+void ManagementServer::handleSend(SOCKET clientSock, const std::string& response)
+{
 
 }
 

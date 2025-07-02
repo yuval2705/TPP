@@ -15,7 +15,12 @@ class ManagementServer
     void acceptConnection();
     void handleRequest(SOCKET clientSock, const std::string& request);
     void handleReceive(SOCKET clientSock);
+    void handleSend(SOCKET clientSock, const std::string& response);
   public:
+    enum class Actions : unsigned int
+    {
+        PING = 0
+    };
     ManagementServer(std::string ip, int port);
     ~ManagementServer();
     void start();
