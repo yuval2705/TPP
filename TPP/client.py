@@ -8,9 +8,10 @@ DEFAULT_SERVER_PORT = 33333
 MESSAGE_LEN_SIZE = 4
 
 
-class ClientCommand(str, Enum):
+class ClientAction(str, Enum):
     EXIT = "exit"
     PING = "ping"
+    RUN = "run"
 
 
 def init_socket(server_ip: str, server_port: int) -> socket.socket:
@@ -59,6 +60,20 @@ def handle_ping(sock: socket.socket) -> None:
     send_message_to_server(sock, "ping")
 
 
+def handle_run(sock:socket.socket) -> None:
+    """
+    Handles the action `run`.
+    It asks the client for a command to execute and then sends it to the server.
+    It then prints the server response upon receiving.
+
+    @param sock, The socket used to communicate with the server.
+    """
+    command_to_execute = input("Command to execute: ")
+    send_message_to_server(sock, ClientAction.RUN + command_to_execute)
+    server_response = receive_from_server(sock).decode()
+    print(f"Server sent: {server_response}")
+
+
 def start_client(server_addr: str, server_port: int) -> None:
     """
     Starts the client side. Handles the communication with the server.
@@ -68,14 +83,16 @@ def start_client(server_addr: str, server_port: int) -> None:
     """
     client_sock = init_socket(server_addr, server_port)
 
-    command = input("The command to execute: ")
-    while command != ClientCommand.EXIT:
-        if command == ClientCommand.PING:
+    action = input("The Action to perform: ")
+    while action != ClientAction.EXIT:
+        if action.startswith(ClientAction.PING):
             handle_ping(client_sock)
             server_response = receive_from_server(client_sock).decode()
             print(f"Server sent: {server_response}")
+        elif action.startswith(ClientAction.RUN):
+            handle_run(client_sock)
 
-        command = input("The command to execute: ")
+        action = input("The Action to perform: ")
 
 
 def init_argparser() -> argparse.ArgumentParser:
