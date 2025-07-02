@@ -13,7 +13,7 @@ class Client_Command(str, Enum):
     PING = "ping"
 
 
-def init_socket(server_ip:str, server_port:int) -> socket.socket:
+def init_socket(server_ip: str, server_port: int) -> socket.socket:
     """
     Creates a TCP socket to communicate with a server with the given ip and port.
     
@@ -26,18 +26,18 @@ def init_socket(server_ip:str, server_port:int) -> socket.socket:
     return client_sock
 
 
-def send_message_to_server(sock:socket.socket, msg:str) -> None:
+def send_message_to_server(sock: socket.socket, msg: str) -> None:
     """
     Sends a message to the server.
 
     @param sock, The socket used to communicate with the server.
     @param msg, The message to send to the server.
     """
-    sock.send(len(msg).to_bytes(4, byteorder='little', signed=False))
+    sock.send(len(msg).to_bytes(MESSAGE_LEN_SIZE, byteorder='little', signed=False))
     sock.send(msg.encode())
 
 
-def receive_from_server(sock:socket.socket) -> bytes:
+def receive_from_server(sock: socket.socket) -> bytes:
     """
     Called when a reponse/message is to be received from the server.
 
@@ -49,7 +49,7 @@ def receive_from_server(sock:socket.socket) -> bytes:
     return sock.recv(msg_len)
 
 
-def handle_ping(sock:socket.socket) -> None:
+def handle_ping(sock: socket.socket) -> None:
     """
     Handles the action associated with ping.
     (sends the message `ping` to the server)
@@ -59,7 +59,7 @@ def handle_ping(sock:socket.socket) -> None:
     send_message_to_server(sock, "ping")
 
 
-def start_client(server_addr:str, server_port:int) -> None:
+def start_client(server_addr: str, server_port: int) -> None:
     """
     Starts the client side. Handles the communication with the server.
 

@@ -20,7 +20,7 @@ SOCKET ManagementServer::initListeningSocket(std::string ip, int port) {
     listenSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
     if (listenSocket == INVALID_SOCKET) {
-        printf("Error at socket(): %ld\n", WSAGetLastError());
+        std::cerr << "Error at socket(): " << WSAGetLastError() << std::endl;
         WSACleanup();
         return NULL;
     }
@@ -30,9 +30,9 @@ SOCKET ManagementServer::initListeningSocket(std::string ip, int port) {
     serverAddr.sin_addr.s_addr = inet_addr(ip.c_str());
     serverAddr.sin_port = htons((u_short)port);
 
-    int bindingRes = bind(listenSocket, (SOCKADDR*)&serverAddr, sizeof(serverAddr));
+    int bindingRes = bind(listenSocket, reinterpret_cast<SOCKADDR*>(&serverAddr), sizeof(serverAddr));
     if (bindingRes == SOCKET_ERROR) {
-        printf("bind failed with error: %d\n", WSAGetLastError());
+        std::cerr << "bind failed with error: " << WSAGetLastError() << std::endl;
         closesocket(listenSocket);
         WSACleanup();
         return NULL;
@@ -175,13 +175,13 @@ void ManagementServer::handleSend(SOCKET clientSock, const std::string& response
 void ManagementServer::start() {
     std::cout << "starting the sever" << std::endl;
     if (listen(this->m_listeningSocket, SOMAXCONN) == SOCKET_ERROR) {
-        std::cout << "Failed listening with error " << WSAGetLastError() << std::endl;
+        std::cerr << "Failed listening with error " << WSAGetLastError() << std::endl;
         this->closeConnection(this->m_listeningSocket);
         WSACleanup();
         return;
     }
         
-    while (TRUE) {
+    while (true) {
         fd_set readables = *this->getOpenSockets();
         int count = select(0, &readables, NULL, NULL, NULL);
         for (unsigned i = 0; i < readables.fd_count; i++) {
