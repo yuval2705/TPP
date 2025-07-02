@@ -64,9 +64,18 @@ class ManagementServer
     /*
     * @brief Handles the `PING` request, sends `pong` to the client.
     * 
-    * @param clientSock [IN] The socket to reponse to.
+    * @param clientSock [IN] The socket to responed to.
     */
     void handlePing(SOCKET clientSock);
+
+    /*
+    * @brief Handle the `RUN` request. It tries to execute the request body like its a command line
+    * and sends back to the user a string representing if it was succesful of what error accourd.
+    * 
+    * @param clientSock [IN] The socket to responed to.
+    * @param request_body [IN] The body of the sent request, what that is going to be executed.
+    */
+    void handleRun(SOCKET clientSock, const std::string& request_body);
 
     /*
     * @brief Called everytime a connection (socket) needs to be closed.
@@ -76,19 +85,21 @@ class ManagementServer
     */
     void closeConnection(SOCKET sock);
   public:
-    static const int NUM_OF_ACTIONS = 2;
+    static const int NUM_OF_ACTIONS = 3;
     enum class Action : unsigned int {
         UNSUPPORTED_ACTION = 0,
-        PING = 1
+        PING = 1,
+        RUN = 2
     };
 
     /*
     * @brief Returns the `Action` from the given request.
     * 
-    * @param request [IN] The request itself to get what Action it is.
+    * @param request [IN, OUT] The request itself to get what Action it is.
+        The prefix of the request itself we be removed
     * @return `Action` to perform from the given request.
     */
-    Action mapRequestToAction(const std::string& request);
+    Action mapRequestToAction(std::string& request);
 
     /*
     * @brief CTOR for the server.

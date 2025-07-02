@@ -74,8 +74,9 @@ ManagementServer::~ManagementServer() {
 
 
 std::string** ManagementServer::initActionToStringMapping() {
-    std::string** stringMappings = new std::string*[NUM_OF_ACTIONS];
+    std::string** stringMappings = new std::string* [NUM_OF_ACTIONS] {NULL};
     stringMappings[static_cast<unsigned int>(ManagementServer::Action::PING)] = new std::string("ping");
+    stringMappings[static_cast<unsigned int>(ManagementServer::Action::RUN)] = new std::string("run");
     stringMappings[static_cast<unsigned int>(ManagementServer::Action::UNSUPPORTED_ACTION)] = new std::string("NULL");
 
     return stringMappings;
@@ -120,7 +121,7 @@ std::string ManagementServer::handleReceive(SOCKET clientSock) {
     return retString;
 }
 
-ManagementServer::Action ManagementServer::mapRequestToAction(const std::string& request) {
+ManagementServer::Action ManagementServer::mapRequestToAction(std::string& request) {
     for (int i = 1; i < ManagementServer::NUM_OF_ACTIONS; i++) {
         std::string* currAction =  this->m_actionStringMappings[i];
         if (currAction == NULL) {
@@ -132,6 +133,7 @@ ManagementServer::Action ManagementServer::mapRequestToAction(const std::string&
         }
 
         if (request.compare(0, currAction->length(), currAction->c_str()) == 0) {
+            request.erase(0, currAction->length());
             return static_cast<ManagementServer::Action>(i);
         }
     }
@@ -142,12 +144,38 @@ void ManagementServer::handlePing(SOCKET clientSock) {
     this->handleSend(clientSock, "PONG");
 }
 
+void ManagementServer::handleRun(SOCKET clientSock, const std::string& request_body) {
+    std::string response;
+
+    HINSTANCE result = ShellExecuteA(NULL, NULL, request_body.c_str(), NULL, NULL, SW_SHOWDEFAULT);
+    if (reinterpret_cast<int>(result) > 32) {
+        response = std::string("File executed succesfuly!");
+    }
+    else {
+        switch (reinterpret_cast<int>(result)) {
+            case ERROR_FILE_NOT_FOUND:
+                response = std::string("File not found!");
+                break;
+            case ERROR_PATH_NOT_FOUND:
+                response = std::string("Path not found!");
+                break;
+            default:
+                std::cout << GetLastError() << std::endl;
+                break;
+        }
+    }
+    this->handleSend(clientSock, response);
+}
+
 void ManagementServer::handleRequest(SOCKET clientSock, std::string& request) {
     ManagementServer::Action action = this->mapRequestToAction(request);
+
     switch (action) {
         case ManagementServer::Action::PING:
             this->handlePing(clientSock);
             break;
+        case ManagementServer::Action::RUN:
+            this->handleRun(clientSock, request);
         default:
             break;
     }
