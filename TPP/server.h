@@ -77,8 +77,7 @@ class ManagementServer
     void closeConnection(SOCKET sock);
   public:
     static const int NUM_OF_ACTIONS = 2;
-    enum class Action : unsigned int
-    {
+    enum class Action : unsigned int {
         UNSUPPORTED_ACTION = 0,
         PING = 1
     };

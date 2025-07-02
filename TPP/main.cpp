@@ -70,8 +70,7 @@ int main(int argc, char** argv) {
         retValue = ERROR;
     }
     
-    if (programMutex != NULL)
-    {
+    if (programMutex != NULL) {
         ReleaseMutex(programMutex);
         CloseHandle(programMutex);
     }
