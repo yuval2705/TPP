@@ -97,11 +97,11 @@ std::string ManagementServer::handleReceive(SOCKET clientSock) {
     // Connection closing
     if (bytesReceived == 0) {
         this->closeConnection(clientSock);
-        return std::string("");
+        return "";
     }
     if (bytesReceived < 0) {
         this->closeConnection(clientSock);
-        return std::string("");
+        return "";
     }
 
     char* recvBuf = new char[requestSize+1]{0};
@@ -110,11 +110,11 @@ std::string ManagementServer::handleReceive(SOCKET clientSock) {
     // Connection closing
     if (bytesReceived == 0) {
         this->closeConnection(clientSock);
-        return std::string("");
+        return "";
     }
     if (bytesReceived < 0) {
         this->closeConnection(clientSock);
-        return std::string("");
+        return "";
     }
 
     std::string retString = std::string(recvBuf);
@@ -149,20 +149,29 @@ void ManagementServer::handleRun(SOCKET clientSock, const std::string& request_b
     std::string response;
 
     HINSTANCE result = ShellExecuteA(NULL, NULL, request_body.c_str(), NULL, NULL, SW_SHOWDEFAULT);
+
+    /*
+        If the function succeeds, it returns a value greater than 32. If the function fails,
+        it returns an error value that indicates the cause of the failure.
+        The return value is cast as an HINSTANCE for backward compatibility with 16-bit Windows applications.
+        It is not a true HINSTANCE, however.
+        It can be cast only to an INT_PTR and compared to either 32 or the following error codes below.
+
+        https://learn.microsoft.com/en-us/windows/win32/api/shellapi/nf-shellapi-shellexecutea
+     */
     if (reinterpret_cast<int>(result) > 32) {
-        response = std::string("File executed succesfuly!");
-    }
-    else {
-        switch (reinterpret_cast<int>(result)) {
-            case ERROR_FILE_NOT_FOUND:
-                response = std::string("File not found!");
-                break;
-            case ERROR_PATH_NOT_FOUND:
-                response = std::string("Path not found!");
-                break;
-            default:
-                std::cout << GetLastError() << std::endl;
-                break;
+        response = "File executed succesfuly!";
+    } else {
+        switch (static_cast<int>(result)) {
+        case ERROR_FILE_NOT_FOUND:
+            response = "File not found!";
+            break;
+        case ERROR_PATH_NOT_FOUND:
+            response = "Path not found!";
+            break;
+        default:
+            std::cerr << GetLastError() << std::endl;
+            break;
         }
     }
     this->handleSend(clientSock, response);
@@ -172,13 +181,13 @@ void ManagementServer::handleRequest(SOCKET clientSock, std::string& request) {
     ManagementServer::Action action = this->mapRequestToAction(request);
 
     switch (action) {
-        case ManagementServer::Action::PING:
-            this->handlePing(clientSock);
-            break;
-        case ManagementServer::Action::RUN:
-            this->handleRun(clientSock, request);
-        default:
-            break;
+    case ManagementServer::Action::PING:
+        this->handlePing(clientSock);
+        break;
+    case ManagementServer::Action::RUN:
+        this->handleRun(clientSock, request);
+    default:
+        break;
     }
 }
 
@@ -187,7 +196,7 @@ void ManagementServer::handleSend(SOCKET clientSock, const std::string& response
     int sendResult = send(clientSock, reinterpret_cast<char*>(&responseLen), sizeof(responseLen), 0);
     if (sendResult == SOCKET_ERROR) {
         //handle closing socket!
-        std::cout << "got error: " << WSAGetLastError() << std::endl; 
+        std::cerr << "got error: " << WSAGetLastError() << std::endl; 
         this->closeConnection(clientSock);
         return;
     }
@@ -196,7 +205,7 @@ void ManagementServer::handleSend(SOCKET clientSock, const std::string& response
     if (sendResult == SOCKET_ERROR) {
         // handle closing socket!
         this->closeConnection(clientSock);
-        std::cout << "got error: " << WSAGetLastError() << std::endl; 
+        std::cerr << "got error: " << WSAGetLastError() << std::endl; 
         return;
     }
 }

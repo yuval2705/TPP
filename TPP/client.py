@@ -1,5 +1,5 @@
 import socket
-import typing
+from typing import Dict, Callable
 from enum import Enum
 import argparse
 
@@ -58,20 +58,28 @@ def handle_ping(sock: socket.socket) -> None:
     @param sock, The socket used to communicate with the server.
     """
     send_message_to_server(sock, "ping")
+    server_response = receive_from_server(client_sock).decode()
+    print(f"Server sent: {server_response}")
 
 
 def handle_run(sock:socket.socket) -> None:
     """
     Handles the action `run`.
-    It asks the client for a command to execute and then sends it to the server.
+    It asks the client for a path to an executable to execute on the server and then sends it to the server.
     It then prints the server response upon receiving.
 
     @param sock, The socket used to communicate with the server.
     """
-    command_to_execute = input("Command to execute: ")
+    command_to_execute = input("Executable to run: ")
     send_message_to_server(sock, ClientAction.RUN + command_to_execute)
     server_response = receive_from_server(sock).decode()
     print(f"Server sent: {server_response}")
+
+
+def init_action_handler_dict():
+    action_handler_dict: Dict[ClientAction, Callable] = dict()
+    action_handler_dict.update({ClientAction.PING: handle_ping})
+    action_handler_dict.update({ClientAction.RUN: handle_run})
 
 
 def start_client(server_addr: str, server_port: int) -> None:
@@ -81,16 +89,16 @@ def start_client(server_addr: str, server_port: int) -> None:
     @param server_addr, The IPv4 address of the server.
     @param server_port, The port the server is listening on.
     """
+
+    action_handler_dict = init_action_handler_dict()
+
     client_sock = init_socket(server_addr, server_port)
 
     action = input("The Action to perform: ")
     while action != ClientAction.EXIT:
-        if action.startswith(ClientAction.PING):
-            handle_ping(client_sock)
-            server_response = receive_from_server(client_sock).decode()
-            print(f"Server sent: {server_response}")
-        elif action.startswith(ClientAction.RUN):
-            handle_run(client_sock)
+        for key, handler in action_handler_dict.items():
+            if action.startswith(key):
+                handler(client_sock)
 
         action = input("The Action to perform: ")
 
