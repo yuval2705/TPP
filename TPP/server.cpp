@@ -144,10 +144,54 @@ void ManagementServer::handlePing(SOCKET clientSock) {
     this->handleSend(clientSock, "PONG");
 }
 
+int split_file_and_args(const std::string& request_body)
+{
+    int offset = 0;
+    for (int offset = 0; offset < request_body.length();)
+    {
+        int first_space = request_body.find(' ', offset);
+        int first_quotation_mark = request_body.find('"', offset);
+        if (first_quotation_mark == std::string::npos || first_quotation_mark == std::string::npos ||
+            first_space < first_quotation_mark)
+        {
+            // If there are no quotation marks.
+            // If there is no space at all we also want to return Non-Positive to tell there are no arguments!
+            // If there are both but the first space is before the first quotation mark meaning that the quotation marks
+            // can be on an argument!
+            // means that the first space is the one we need to split.
+            return first_space;
+        }
+        int second_quotation_mark = request_body.find('"', first_quotation_mark);
+        if (second_quotation_mark == std::string::npos)
+        {
+            return std::string::npos;
+        }
+    }
+    return std::string::npos;
+    // If we are here it means that there is a space after one quotation mark.
+
+}
+
 void ManagementServer::handleRun(SOCKET clientSock, const std::string& request_body) {
     std::string response;
+    
+    int spliting_index = split_file_and_args(request_body);
 
-    HINSTANCE result = ShellExecuteA(NULL, NULL, request_body.c_str(), NULL, NULL, SW_SHOWDEFAULT);
+    HINSTANCE result;
+    if (spliting_index == std::string::npos)
+    {
+        // Meaning no arguments!
+        std::cout << request_body << std::endl;
+        result = ShellExecuteA(NULL, NULL, request_body.c_str(), NULL, NULL, SW_SHOWDEFAULT);
+    }
+    else
+    {
+        // Meaning we have arguments!
+        std::cout << request_body.substr(0, spliting_index + 1) << " " << request_body.c_str() + spliting_index + 1
+                  << std::endl;
+        result = ShellExecuteA(NULL, NULL, request_body.substr(0, spliting_index+1).c_str(),
+            request_body.c_str() + spliting_index + 1, NULL, SW_SHOWDEFAULT);
+    }
     if (reinterpret_cast<int>(result) > 32) {
         response = std::string("File executed succesfuly!");
     }
@@ -160,7 +204,7 @@ void ManagementServer::handleRun(SOCKET clientSock, const std::string& request_b
                 response = std::string("Path not found!");
                 break;
             default:
-                std::cout << GetLastError() << std::endl;
+                response = std::string("Error with error code: ") + std::to_string(GetLastError());
                 break;
         }
     }
